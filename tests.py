@@ -30,6 +30,10 @@ class TestHypemFunctions(unittest.TestCase):
     def test_get_user(self):
         playlist = hypem.get_user("systemizer")
         self.assertIsNotNone(playlist.data)
+
+    def test_search(self):
+        playlist = hypem.search("lol")
+        self.assertIsNotNone(playlist.data)
         
 
 if __name__ == '__main__':

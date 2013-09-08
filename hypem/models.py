@@ -2,28 +2,52 @@ import logging
 import requests
 
 class HypemModel(object):
-    def api_endpoint(self):
+    _data = None
+
+    @property
+    def endpoint(self):
         raise NotImplementedError
 
+    @property
+    def _parse_raw_data(self):
+        raise NotImplementedError
+
+    @property
+    def data(self):
+        if not self._data:
+            self._data = self._parse_raw_data(requests.get(self.endpoint).json())
+        return self._data
+
+class HypemUser(HypemModel):    
+    def __init__(self,username,_data=None):
+        self.username = username
+        self._data = _data
+
+    @property
+    def endpoint(self):
+        return "http://api.hypem.com/api/get_profile?username=%(username)s" % {'username':self.username}
+
+    def _parse_raw_data(self,raw_data):
+        return raw_data
+
+
 class HypemTrack(HypemModel):
-    _attributes = ["mediaid","artist","title","dateposted","siteid","sitename",
-                   "posturl","postid","loved_count","posted_count","thumb_url",
-                   "thumb_url_medium","thumb_url_large","thumb_url_artist","time",
-                   "description","itunes_link"]
-    def __init__(self,**kwargs):
-        for attr in self._attributes:
-            setattr(self,attr,kwargs.get(attr))
+    def __init__(self,mediaid,_data=None):
+        self.mediaid = mediaid
+        if _data:
+            self._data = _data
+
+    @property
+    def endpoint(self):
+        return 
 
 class HypemPlaylist(HypemModel):
-    _playlist_data = None
 
-    def __init__(self,
-                 type="popular",
-                 filter="3day",
-                 page=1):
+    def __init__(self,type,filter,page=1,_data=None):
         self.type=type
         self.filter = filter
         self.page = page
+        self._data = _data
 
     @property
     def endpoint(self):
@@ -39,30 +63,27 @@ class HypemPlaylist(HypemModel):
         del raw_data['version'] #hack because i dont agree with this design decision by hypem
 
         for rank,track_data in sorted(raw_data.items(),key=lambda x: int(x[0])):
-            parsed_result.append(HypemTrack(**track_data))
+            parsed_result.append(HypemTrack(mediaid=track_data['mediaid'],_data=track_data))
 
         return parsed_result
 
     @property
-    def _playlist(self):
-        if not self._playlist_data:
+    def data(self):
+        if not self._data:
             playlist_data_raw = requests.get(self.endpoint).json()
-            self._playlist_data = self._parse_raw_data(playlist_data_raw)
+            self._data = self._parse_raw_data(playlist_data_raw)
 
-        return self._playlist_data
-
-    def __str__(self):
-        return "PLAYLIST - %s - %s - %s" % (self.type,self.filter,self.page)
+        return self._data
 
     def __iter__(self):
-        for track in self._playlist:
+        for track in self._data:
             yield track
 
     def __getitem__(self,key):
-        return self._playlist[key]
+        return self._data[key]
 
     def __len__(self):
-        return len(self._playlist)
+        return len(self._data)
             
         
 
