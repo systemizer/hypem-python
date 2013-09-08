@@ -2,6 +2,7 @@ import logging
 import requests
 
 class HypemModel(object):
+    _attributes = []
     _data = None
 
     @property
@@ -18,7 +19,14 @@ class HypemModel(object):
             self._data = self._parse_raw_data(requests.get(self.endpoint).json())
         return self._data
 
+    def __getattr__(self,name):
+        if name in self._attributes:
+            return self.data[name]
+        return super(HypemModel,self).__getattr__(name)
+
 class HypemUser(HypemModel):    
+    _attributes = ["username","profile_url","fullname","twitter_username",
+                   "userpic","joined_ts","favorites_count","location"]
     def __init__(self,username,_data=None):
         self.username = username
         self._data = _data
@@ -32,6 +40,11 @@ class HypemUser(HypemModel):
 
 
 class HypemTrack(HypemModel):
+    _attributes = ["mediaid","artist","title","dateposted","siteid","sitename",
+                   "posturl","postid","loved_count","posted_count","thumb_url",
+                   "thumb_url_medium","thumb_url_large","thumb_url_artist","time",
+                   "description","itunes_line"]
+
     def __init__(self,mediaid,_data=None):
         self.mediaid = mediaid
         if _data:
@@ -67,23 +80,15 @@ class HypemPlaylist(HypemModel):
 
         return parsed_result
 
-    @property
-    def data(self):
-        if not self._data:
-            playlist_data_raw = requests.get(self.endpoint).json()
-            self._data = self._parse_raw_data(playlist_data_raw)
-
-        return self._data
-
     def __iter__(self):
-        for track in self._data:
+        for track in self.data:
             yield track
 
     def __getitem__(self,key):
-        return self._data[key]
+        return self.data[key]
 
     def __len__(self):
-        return len(self._data)
+        return len(self.data)
             
         
 
