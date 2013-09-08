@@ -1,5 +1,6 @@
 import logging
-import requests
+import urllib2
+import json
 
 class HypemModel(object):
     _attributes = []
@@ -16,7 +17,7 @@ class HypemModel(object):
     @property
     def data(self):
         if not self._data:
-            self._data = self._parse_raw_data(requests.get(self.endpoint).json())
+            self._data = self._parse_raw_data(json.loads(urllib2.urlopen(self.endpoint).read()))
         return self._data
 
     def __getattr__(self,name):

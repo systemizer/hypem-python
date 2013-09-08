@@ -75,3 +75,11 @@ Models:
 *	*location*: "San Francisco, CA, US",
 *	*is_friend*: false,
 *	*is_follower*: false
+
+
+Tests:
+------
+
+```
+python tests.py
+```
