@@ -13,6 +13,12 @@ for track in playlist:
   
 ```
 
+Install:
+--------
+```
+pip install hypem-python
+```
+
 
 Available Functions:
 --------------------
