@@ -23,7 +23,7 @@ class HypemModel(object):
     def __getattr__(self,name):
         if name in self._attributes:
             return self.data[name]
-        return super(HypemModel,self).__getattr__(name)
+        return getattr(super(HypemModel,self),name)
 
 class HypemUser(HypemModel):    
     _attributes = ["username","profile_url","fullname","twitter_username",
@@ -38,6 +38,10 @@ class HypemUser(HypemModel):
 
     def _parse_raw_data(self,raw_data):
         return raw_data
+
+    def __repr__(self):
+        return "<HypemUser: [%s]>" % self.username
+        
 
 
 class HypemTrack(HypemModel):
@@ -55,6 +59,9 @@ class HypemTrack(HypemModel):
     def endpoint(self):
         return 
 
+    def __repr__(self):
+        return "<HypemTrack: [%s by %s]>" % (self.title,self.artist)
+
 class HypemPlaylist(HypemModel):
 
     def __init__(self,type,filter,page=1,_data=None):
@@ -62,6 +69,9 @@ class HypemPlaylist(HypemModel):
         self.filter = filter
         self.page = page
         self._data = _data
+
+    def __repr__(self):
+        return "<HypemPlaylist: [%s]>" % self.type
 
     @property
     def endpoint(self):
