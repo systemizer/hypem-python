@@ -1,6 +1,9 @@
 hypem-python
 ============
 
+.. image:: https://badge.fury.io/py/hypem-python.png
+    :target: http://badge.fury.io/py/hypem-python
+
 Simple Python Client to the Hype Machine Public API (http://hypem.com)
 
 Example:
